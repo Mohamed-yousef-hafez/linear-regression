@@ -1,0 +1,202 @@
+import numpy as np # linear algebra
+import pandas as pd 
+import seaborn as sns
+import matplotlib.pyplot as plt
+%matplotlib inline
+    
+	
+	
+	
+	
+	
+	mobile_train_data.head()
+
+	
+	
+	
+	
+	mobile_train_data.describe()
+
+	
+	
+	mobile_train_data.columns
+mobile_train_data = mobile_train_data.dropna()
+
+
+y = mobile_train_data.price_range
+y.unique()
+sns.countplot(mobile_train_data['price_range'])
+plt.show()
+
+
+
+mobile_test_data.columns
+
+
+
+#Splitting data
+
+
+mobile_features = ['battery_power', 'blue', 'clock_speed', 'dual_sim', 'fc',
+       'four_g', 'int_memory', 'm_dep', 'mobile_wt', 'n_cores', 'pc',
+       'px_height', 'px_width', 'ram', 'sc_h', 'sc_w', 'talk_time', 'three_g',
+       'touch_screen', 'wifi']
+
+
+
+
+x= mobile_train_data = [mobile_features]
+
+X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.33, random_state=1)
+
+x_train.describe()
+
+#Splitted Data
+#print('X_train shape is ' , X_train.shape)
+#print('X_val shape is ' , X_val.shape)
+#print('y_train shape is ' , y_train.shape)
+#print('y_val shape is ' , y_val.shape)
+
+
+
+train_X.head()
+
+
+
+
+from sklearn.tree import DecisionTreeRegressor
+
+
+mobile_decision_tree_model = DecisionTreeRegressor(random_state=1)
+
+# Fit model
+mobile_decision_tree_model.fit(train_X, train_y)
+
+
+
+
+from sklearn.metrics import mean_absolute_error
+
+
+val_predictions = mobile_decision_tree_model.predict(val_X)
+
+val_mae = mean_absolute_error(val_y, val_predictions)
+print(mobile_decision_tree_model.tree_.node_count)
+print("Validation MAE: {:,.0f}".format(val_mae))
+
+
+
+
+def get_mae(max_leaf_nodes, train_X, val_X, train_y, val_y):
+    model = DecisionTreeRegressor(max_leaf_nodes=max_leaf_nodes, random_state=0)
+    model.fit(train_X, train_y)
+    preds_val = model.predict(val_X)
+    mae = mean_absolute_error(val_y, preds_val)
+    return(mae)
+	
+	
+	
+	
+candidate_max_leaf_nodes = [5, 25, 50, 100, 250, 500]
+scores = {leaf_size: get_mae(leaf_size, train_X, val_X, train_y, val_y) for leaf_size in candidate_max_leaf_nodes}
+best_tree_size = min(scores, key=scores.get)
+print(scores)
+print(str(best_tree_size) + ' leaves is the best tree size')
+
+
+
+candidate_max_leaf_nodes = range(75,350,25)
+scores = {leaf_size: get_mae(leaf_size, train_X, val_X, train_y, val_y) for leaf_size in candidate_max_leaf_nodes}
+best_tree_size = min(scores, key=scores.get)
+print(scores)
+print(str(best_tree_size) + ' leaves is the best tree size with MAE of ' + str(scores[best_tree_size]))
+
+
+final_model = DecisionTreeRegressor(max_leaf_nodes=best_tree_size, random_state=0)
+
+# fit the final model and uncomment the next two lines
+final_model.fit(X, y)
+
+
+fig = plt.figure(figsize=(15,12))
+sns.heatmap(mobile_train_data.corr())
+
+
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error
+
+mobile_forest_model = RandomForestRegressor(random_state=1)
+mobile_forest_model.fit(train_X, train_y)
+mobile_forest_predicts = mobile_forest_model.predict(val_X)
+print(mean_absolute_error(val_y, mobile_forest_predicts))
+
+
+
+sns.boxplot(mobile_train_data['price_range'],mobile_train_data['talk_time'])
+
+
+sns.boxplot(mobile_train_data['dual_sim'],mobile_train_data['price_range'])
+
+
+
+
+mobile_train_data.describe()
+
+
+
+mobile_features = ['battery_power', 'blue', 'clock_speed', 'dual_sim', 'fc',
+       'int_memory', 'm_dep', 'mobile_wt', 'n_cores', 'pc',
+       'ram_g', 'sc', 'talk_time',
+       'touch_screen', 'internet']
+X_new = mobile_train_data[mobile_features]
+train_X_new, val_X_new, train_y_new, val_y_new = train_test_split(X_new, y, random_state=1)
+train_X_new.describe()
+
+
+candidate_max_leaf_nodes = [5, 25, 50, 100, 250, 500]
+scores = {leaf_size: get_mae(leaf_size, train_X_new, val_X_new, train_y_new, val_y_new) for leaf_size in candidate_max_leaf_nodes}
+best_tree_size = min(scores, key=scores.get)
+print(scores)
+print(str(best_tree_size) + ' leaves is the best tree size with MAE of ' + str(scores[best_tree_size]))
+
+
+
+
+
+
+from sklearn.linear_model import LinearRegression
+lm = LinearRegression()
+lm.fit(train_X,train_y)
+lm.score(train_X,train_y)
+preds_val = lm.predict(val_X)
+mae = mean_absolute_error(val_y, preds_val)
+print('Linear Regression MAE is: '+ str(mae))
+
+
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+
+svm = SVC()
+svm.fit(train_X,train_y)
+preds_val = svm.predict(val_X)
+mae = mean_absolute_error(val_y, preds_val)
+print('SVM MAE is: '+ str(mae))
+
+from sklearn.neighbors import KNeighborsClassifier
+knn = KNeighborsClassifier(n_neighbors=10)
+knn.fit(train_X,train_y)
+preds_val = knn.predict(val_X)
+mae = mean_absolute_error(val_y, preds_val)
+print('KNN MAE is: '+ str(mae))
+
+
+error_rate = {}
+for i in range(3,20):
+    knn = KNeighborsClassifier(n_neighbors=i)
+    knn.fit(train_X,train_y)
+    preds_val = knn.predict(val_X)
+    mae = mean_absolute_error(val_y, preds_val)
+    error_rate[i] = mae
+best_n_size = min(error_rate, key=error_rate.get)
+print(error_rate)
+print(str(best_n_size) + ' neighbors is the best n size with MAE of ' + str(error_rate[best_n_size]))
